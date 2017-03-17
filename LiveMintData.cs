@@ -151,6 +151,7 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
+                    d.balanceYearC = GetData(res, "Particulars,class,<b>");
                     foreach (string header in StaticData.liveMintBalanceSheetHeader)
                     {
                         d.balanceSheetC.Add(GetData(ref res, header, "fincomondata"));
@@ -169,6 +170,7 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
+                    d.balanceYearS = GetData(res, "Particulars,class,<b>");
                     foreach (string header in StaticData.liveMintBalanceSheetHeader)
                     {
                         d.balanceSheetS.Add(GetData(ref res, header, "fincomondata"));
@@ -210,6 +212,7 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
+                    d.profitLossYearC = GetData(res, "Particulars,class");
                     foreach (string header in StaticData.liveMintProfitLossData)
                     {
                         d.profitLossC.Add(GetData(ref res, header, "fincomondata"));
@@ -228,6 +231,7 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
+                    d.profitLossYearS = GetData(res, "Particulars,class");
                     foreach (string header in StaticData.liveMintProfitLossData)
                     {
                         d.profitLossS.Add(GetData(ref res, header, "fincomondata"));
@@ -269,6 +273,7 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
+                    d.cashFlowYearC = GetData(res, "Particulars,class");
                     foreach (string header in StaticData.liveMintCashFlowData)
                     {
                         d.cashFlowDataC.Add(GetData(ref res, header, "fincomondata"));
@@ -287,6 +292,7 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
+                    d.cashFlowYearS = GetData(res, "Particulars,class");
                     foreach (string header in StaticData.liveMintCashFlowData)
                     {
                         d.cashFlowDataS.Add(GetData(ref res, header, "fincomondata"));
@@ -329,6 +335,7 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
+                    d.quaterC = GetData(res, "Particulars,class,<b>");
                     foreach (string header in StaticData.liveMintQuaterlyData)
                     {
                         d.quaterlyDataC.Add(GetQuaterlyData(ref res, header));
@@ -347,6 +354,7 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
+                    d.quaterS = GetData(res, "Particulars,class,<b>");
                     foreach (string header in StaticData.liveMintQuaterlyData)
                     {
                         d.quaterlyDataS.Add(GetQuaterlyData(ref res, header));
@@ -385,6 +393,7 @@ namespace DataScraper
             res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$A2" + postData);
             if (0 < res.Length)
             {
+                d.shareYear = GetData(res, "body,form,moneyWrapper,rightCol2,ContentPlaceHolder1_InnerTable,thead,Particulars,class");
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,ContentPlaceHolder1_InnerTable,tbody,Grand Total,</td>");
                 if (0 < res.Length)
                 {
