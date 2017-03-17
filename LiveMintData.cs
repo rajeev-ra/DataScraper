@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
-using System.Windows.Forms;
 using System.Xml;
-using mshtml;
 
 namespace DataScraper
 {
@@ -29,44 +27,35 @@ namespace DataScraper
             public string nseCode;
             public string bsePrice;
             public string nsePrice;
-            public string marketCap;
-            public string PbyE;
-            public string bookVal;
-            public string div;
-            public string marketLot;
-            public string industryPbyE;
-            public string eps;
-            public string PbyC;
-            public string priceBook;
-            public string divYield;
-            public string faceVal;
-            public string deliverables;
+            public List<string> stockData = new List<string>();
+            public string balanceYearC = "";
+            public string balanceYearS = "";
             public List<string> balanceSheetC = new List<string>();
             public List<string> balanceSheetS = new List<string>();
+            public string profitLossYearC = "";
+            public string profitLossYearS = "";
+            public List<string> profitLossC = new List<string>();
+            public List<string> profitLossS = new List<string>();
+            public string cashFlowYearC = "";
+            public string cashFlowYearS = "";
+            public List<string> cashFlowDataC = new List<string>();
+            public List<string> cashFlowDataS = new List<string>();
+            public string quaterC = "";
+            public string quaterS = "";
+            public List<string[]> quaterlyDataC = new List<string[]>();
+            public List<string[]> quaterlyDataS = new List<string[]>();
+            public string shareYear = "";
+            public string[] noOfShares = new string[4];
         }
 
         private object[,] _data = null;
         private List<StatData> _statList = new List<StatData>();
-        private List<Tuple<string, string, string>> _dataList = new List<Tuple<string, string, string>>();
 
         public object[,] Execute()
         {
-            _dataList.Add(new Tuple<string, string, string>("Company Name", "BSE CODE", "NSE CODE"));
             FetchWebData();
-
-            _data = new object[_dataList.Count, 3];
-            int i = 0;
-            foreach(var d in _dataList)
-            {
-                _data[i, 0] = d.Item1;
-                _data[i, 1] = d.Item2;
-                _data[i, 2] = d.Item3;
-                i++;
-            }
-
             return _data;
         }
-
 
         private void FetchWebData()
         {
@@ -88,15 +77,21 @@ namespace DataScraper
                         d.nseCode = r.SYMBOL;
 
                         MainForm.Log("Fetching : " + r.S_NAME);
+
                         string finCode = r.FINCODE;
                         finCode = finCode.Replace(' ', '-');
                         finCode = finCode.Replace("(", "");
                         finCode = finCode.Replace(")", "");
                         finCode = finCode.Replace(".", "");
+
                         ReadStockPrice(finCode, ref d);
                         ReadBalanceSheet(finCode, ref d);
+                        ReadProfitLoss(finCode, ref d);
+                        ReadCashFlowData(finCode, ref d);
+                        ReadQuaterlyData(finCode, ref d);
+                        ReadNoOfShares(finCode, ref d);
+
                         _statList.Add(d);
-                        //_dataList.Add(new Tuple<string, string, string>(r.S_NAME, r.SCRIPCODE, r.SYMBOL));
                     }
                 }
             }            
@@ -112,18 +107,14 @@ namespace DataScraper
                 d.bsePrice = GetData(res, "body,form,moneyWrapper,TopHead,listingBorder,leftlisting,wid3Col,fs20");
                 d.nsePrice = GetData(res, "body,form,moneyWrapper,TopHead,listingBorder,rightlisting,wid3Col,fs20");
 
-                d.marketCap = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,MARKET CAP (RS MN),fr");
-                d.PbyE = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,P/E,fr");
-                d.bookVal = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,BOOK VALUE(RS),fr");
-                d.div = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,DIV (%),fr");
-                d.marketLot = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,MARKET LOT,fr");
-                d.industryPbyE = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,INDUSTRY P/E,fr");
-                d.eps = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,EPS (TTM),fr");
-                d.PbyC = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,P/C,fr");
-                d.priceBook = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,PRICE BOOK,fr");
-                d.divYield = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,DIV YIELD (%),fr");
-                d.faceVal = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,FACE VALUE,fr");
-                d.deliverables = GetData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES,DELIVERABLES (%),fr");
+                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES");
+                if (0 < res.Length)
+                {
+                    foreach (string header in StaticData.liveMintStockData)
+                    {
+                        d.stockData.Add(GetData(ref res, header, "fr"));
+                    }
+                }
             }
             else
             {
@@ -160,36 +151,9 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
-                    int pos = 0;
-                    string strVal = "";
                     foreach (string header in StaticData.liveMintBalanceSheetHeader)
                     {
-                        pos = res.IndexOf(header);
-                        if (0 < pos)
-                        {
-                            pos = res.IndexOf("fincomondata", pos + 1);
-                            if (0 < pos)
-                            {
-                                pos = res.IndexOf('>', pos + 1);
-                                res = res.Substring(pos + 1);
-
-                                pos = res.IndexOf('<');
-                                strVal = res.Substring(0, pos);
-
-                                strVal = strVal.Replace("&nbsp;", "");
-                                strVal = strVal.Trim("\r\n ".ToCharArray());
-
-                                d.balanceSheetC.Add(strVal);
-                            }
-                            else
-                            {
-                                d.balanceSheetC.Add("");
-                            }
-                        }
-                        else
-                        {
-                            d.balanceSheetC.Add("");
-                        }
+                        d.balanceSheetC.Add(GetData(ref res, header, "fincomondata"));
                     }
                 }
             }
@@ -205,36 +169,242 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
                 if (0 < res.Length)
                 {
-                    int pos = 0;
-                    string strVal = "";
                     foreach (string header in StaticData.liveMintBalanceSheetHeader)
                     {
-                        pos = res.IndexOf(header);
-                        if (0 < pos)
+                        d.balanceSheetS.Add(GetData(ref res, header, "fincomondata"));
+                    }
+                }
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+        }
+
+        private void ReadProfitLoss(string finCode, ref StatData d)
+        {
+            string url = "http://markets.livemint.com/company-profile/" + finCode + "-profit-loss-account.aspx";
+
+            string postData = "";
+
+            // load default page
+            string res = GetResponse(url);
+            if (0 < res.Length)
+            {
+                postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
+                postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
+                postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
+                postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
+                postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+
+
+            // change unit to crore
+            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$ddlconvertdata" + postData);
+            if (0 < res.Length)
+            {
+                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                if (0 < res.Length)
+                {
+                    foreach (string header in StaticData.liveMintProfitLossData)
+                    {
+                        d.profitLossC.Add(GetData(ref res, header, "fincomondata"));
+                    }
+                }
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+
+            // change sheet to standalone
+            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
+            if (0 < res.Length)
+            {
+                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                if (0 < res.Length)
+                {
+                    foreach (string header in StaticData.liveMintProfitLossData)
+                    {
+                        d.profitLossS.Add(GetData(ref res, header, "fincomondata"));
+                    }
+                }
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+        }
+
+        private void ReadCashFlowData(string finCode, ref StatData d)
+        {
+            string url = "http://markets.livemint.com/company-profile/" + finCode + "-cash-flow.aspx";
+
+            string postData = "";
+
+            // load default page
+            string res = GetResponse(url);
+            if (0 < res.Length)
+            {
+                postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
+                postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
+                postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
+                postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
+                postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+
+
+            // change unit to crore
+            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$ddlconvertdata" + postData);
+            if (0 < res.Length)
+            {
+                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                if (0 < res.Length)
+                {
+                    foreach (string header in StaticData.liveMintCashFlowData)
+                    {
+                        d.cashFlowDataC.Add(GetData(ref res, header, "fincomondata"));
+                    }
+                }
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+
+            // change sheet to standalone
+            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
+            if (0 < res.Length)
+            {
+                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                if (0 < res.Length)
+                {
+                    foreach (string header in StaticData.liveMintCashFlowData)
+                    {
+                        d.cashFlowDataS.Add(GetData(ref res, header, "fincomondata"));
+                    }
+                }
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+        }
+
+        private void ReadQuaterlyData(string finCode, ref StatData d)
+        {
+            string url = "http://markets.livemint.com/company-profile/" + finCode + "-quarterly-results.aspx";
+
+            string postData = "";
+
+            // load default page
+            string res = GetResponse(url);
+            if (0 < res.Length)
+            {
+                postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
+                postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
+                postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
+                postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
+                postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
+                postData += "&ctl00$ContentPlaceHolder1$ddlYearDropDown=8";
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+
+
+            // change unit to crore
+            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$CompNews" + postData);
+            if (0 < res.Length)
+            {
+                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                if (0 < res.Length)
+                {
+                    foreach (string header in StaticData.liveMintQuaterlyData)
+                    {
+                        d.quaterlyDataC.Add(GetQuaterlyData(ref res, header));
+                    }
+                }
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+
+            // change sheet to standalone
+            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
+            if (0 < res.Length)
+            {
+                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                if (0 < res.Length)
+                {
+                    foreach (string header in StaticData.liveMintQuaterlyData)
+                    {
+                        d.quaterlyDataS.Add(GetQuaterlyData(ref res, header));
+                    }
+                }
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+        }
+
+        private void ReadNoOfShares(string finCode, ref StatData d)
+        {
+            string url = "http://markets.livemint.com/company-profile/" + finCode + "-shareholding.aspx";
+
+            string postData = "";
+
+            // load default page
+            string res = GetResponse(url);
+            if (0 < res.Length)
+            {
+                postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
+                postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
+                postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
+                postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
+                postData += "&ctl00$ContentPlaceHolder1$cursectag=PERSHARES";
+            }
+            else
+            {
+                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+            }
+
+
+            // switch to pershare
+            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$A2" + postData);
+            if (0 < res.Length)
+            {
+                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,ContentPlaceHolder1_InnerTable,tbody,Grand Total,</td>");
+                if (0 < res.Length)
+                {
+                    int pos = res.IndexOf("</tr>");
+                    if(0 < pos)
+                    {
+                        res = res.Substring(0, pos);
+
+                        for (int i = 0; i < 4; i++)
                         {
-                            pos = res.IndexOf("fincomondata", pos + 1);
-                            if (0 < pos)
-                            {
-                                pos = res.IndexOf('>', pos + 1);
-                                res = res.Substring(pos + 1);
+                            pos = res.IndexOf('>');
+                            res = res.Substring(pos + 1);
 
-                                pos = res.IndexOf('<');
-                                strVal = res.Substring(0, pos);
+                            pos = res.IndexOf('>');
+                            res = res.Substring(pos + 1);
 
-                                strVal = strVal.Replace("&nbsp;", "");
-                                strVal = strVal.Trim("\r\n ".ToCharArray());
-
-                                d.balanceSheetS.Add(strVal);
-                            }
-                            else
-                            {
-                                d.balanceSheetS.Add("");
-                            }
+                            pos = res.IndexOf('<');
+                            d.noOfShares[i] = res.Substring(0, pos);
                         }
-                        else
-                        {
-                            d.balanceSheetS.Add("");
-                        }
+
                     }
                 }
             }
@@ -330,6 +500,61 @@ namespace DataScraper
             }
         }
 
+        public static string GetData(ref string res, string var, string path)
+        {
+            string retVal = "";
+            int pos = res.IndexOf(var);
+            if (0 < pos)
+            {
+                pos = res.IndexOf(path, pos + 1);
+                if (0 < pos)
+                {
+                    pos = res.IndexOf('>', pos + 1);
+                    res = res.Substring(pos + 1);
+
+                    pos = res.IndexOf('<');
+                    retVal = res.Substring(0, pos);
+
+                    retVal = retVal.Replace("&nbsp;", "");
+                    retVal = retVal.Trim("\r\n ".ToCharArray());
+                }
+            }
+            return retVal;
+        }
+
+        public static string[] GetQuaterlyData(ref string res, string var)
+        {
+            string[] retVal = new string[8];
+            try
+            {
+                int pos = res.IndexOf(var);
+                if (0 < pos)
+                {
+                    pos = res.IndexOf('>', pos + 1);
+                    res = res.Substring(pos + 1);
+
+                    pos = res.IndexOf("fintabelsrowsdata");
+                    string searchStr = res.Substring(0, pos);
+
+                    for (int i = 0; i < 8; i++)
+                    {
+                        pos = searchStr.IndexOf('>');
+                        searchStr = searchStr.Substring(pos + 1);
+
+                        pos = searchStr.IndexOf('<');
+                        retVal[i] = searchStr.Substring(0, pos);
+
+                        pos = searchStr.IndexOf('>');
+                        searchStr = searchStr.Substring(pos + 1);
+                    }
+                }
+            }
+            catch
+            {
+            }
+            return retVal;
+        }
+
         private static string GetFormVal(string res, string str)
         {
             try
@@ -357,5 +582,10 @@ namespace DataScraper
                 return "";
             }
         } 
+
+        private void ArrangeData()
+        {
+
+        }
     }
 }
