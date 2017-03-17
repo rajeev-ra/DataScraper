@@ -11,16 +11,18 @@ namespace DataScraper
         private bool _bLiveMint = false;
         private bool _bFE = false;
         private bool _bHindu = false;
+        private string _selection = "";
         
         public object[,] _lvd = null;
 
         private System.ComponentModel.BackgroundWorker _bgWorker = new System.ComponentModel.BackgroundWorker();
 
-        public Worker(bool bLiveMint, bool bFE, bool bHindu)
+        public Worker(bool bLiveMint, bool bFE, bool bHindu, string selection)
         {
             _bLiveMint = bLiveMint;
             _bFE = bFE;
             _bHindu = bHindu;
+            _selection = selection;
 
             _bgWorker.DoWork += _bgWorker_DoWork;
             _bgWorker.RunWorkerCompleted += _bgWorker_RunWorkerCompleted;
@@ -42,7 +44,7 @@ namespace DataScraper
             if(_bLiveMint)
             {
                 LiveMintData lvd = new LiveMintData();
-                var _lvd = lvd.Execute();
+                var _lvd = lvd.Execute(_selection);
             }
         }
     }

@@ -20,6 +20,15 @@ namespace DataScraper
         public MainForm()
         {
             InitializeComponent();
+            for (char c = 'A'; c <= 'Z'; c++)
+            {
+                cList.Items.Add(c);
+            }
+            for (char c = '1'; c <= '9'; c++)
+            {
+                cList.Items.Add(c);
+            }
+
             _this = this;
             _this.cbFinExp.Enabled = false;
             _this.cbHBL.Enabled = false;
@@ -39,19 +48,36 @@ namespace DataScraper
         {
             if (0 < txtOut.Text.Length)
             {
-                if(cbFinExp.Checked || cbLivemint.Checked || cbHBL.Checked)
+                if (0 < cList.SelectedItems.Count)
                 {
-                    Log("[Success] : Data fetching started");
-                    cbLivemint.Enabled = false;
-                    cbFinExp.Enabled = false;
-                    cbHBL.Enabled = false;
-                    btnBrowse.Enabled = false;
-                    btxExec.Enabled = false;
-                    _bgworker = new Worker(cbLivemint.Checked, cbFinExp.Checked, cbHBL.Checked);
+                    string selection = "";
+                    foreach(var item in cList.SelectedItems)
+                    {
+                        selection += item.ToString();
+                    }
+
+                    if (cbFinExp.Checked || cbLivemint.Checked || cbHBL.Checked)
+                    {
+                        Log("[Success] : Data fetching started");
+                        cbLivemint.Enabled = false;
+                        cbFinExp.Enabled = false;
+                        cbHBL.Enabled = false;
+                        btnBrowse.Enabled = false;
+                        btxExec.Enabled = false;
+                        cList.Enabled = false;
+                        lblAll.Enabled = false;
+                        lblNone.Enabled = false;
+
+                        _bgworker = new Worker(cbLivemint.Checked, cbFinExp.Checked, cbHBL.Checked, selection);
+                    }
+                    else
+                    {
+                        Log("[ Error ] : Select atleast one data source");
+                    }
                 }
                 else
                 {
-                    Log("[ Error ] : Select atleast one data source");
+                    Log("[ Error ] : Select atleast one target company name group");
                 }
             }
             else
@@ -105,6 +131,9 @@ namespace DataScraper
             //_this.cbHBL.Enabled = true;
             _this.btnBrowse.Enabled = true;
             _this.btxExec.Enabled = true;
+            _this.cList.Enabled = true;
+            _this.lblAll.Enabled = true;
+            _this.lblNone.Enabled = true;
         }
 
         public static void Log(string msg)
@@ -121,5 +150,17 @@ namespace DataScraper
         }
 
         private delegate void LogDeligate(string msg);
+
+        private void lblAll_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < cList.Items.Count; i++)
+                cList.SetItemChecked(i, true);
+        }
+
+        private void lblNone_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < cList.Items.Count; i++)
+                cList.SetItemChecked(i, false);
+        }
     }
 }

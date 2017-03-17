@@ -51,15 +51,15 @@ namespace DataScraper
         private object[,] _data = null;
         private List<StatData> _statList = new List<StatData>();
 
-        public object[,] Execute()
+        public object[,] Execute(string selection)
         {
-            FetchWebData();
+            FetchWebData(selection);
             return _data;
         }
 
-        private void FetchWebData()
+        private void FetchWebData(string selection)
         {
-            char[] chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789".ToCharArray();
+            char[] chars = selection.ToCharArray();
             foreach(char c in chars)
             {
                 string strPgCount = GetResponse("http://markets.livemint.com/ajaxPages/equity/EquityCompanyList.aspx?srchquote=" + c.ToString() + "&pageNo=1&PageSize=20&opt=page");
