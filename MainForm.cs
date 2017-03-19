@@ -117,13 +117,32 @@ namespace DataScraper
                     var l = _bgworker.GetLiveMintData();
 
                     var startCell = (Excel.Range)xlWorkSheet.Cells[1, 1];
-                    var endCell = (Excel.Range)xlWorkSheet.Cells[l.Length / 3, 3];
+                    var endCell = (Excel.Range)xlWorkSheet.Cells[l.GetLength(0), l.GetLength(1)];
                     var writeRange = xlWorkSheet.Range[startCell, endCell];
                     writeRange.Value2 = l;
                     writeRange.Columns.AutoFit();
+
+                    foreach(var f in LiveMintData.HeaderColor1)
+                    {
+                        var sc = (Excel.Range)xlWorkSheet.Cells[1, f.Item1 + 1];
+                        var ec = (Excel.Range)xlWorkSheet.Cells[1, f.Item2 + f.Item1];
+                        var rang = xlWorkSheet.Range[sc, ec];
+                        rang.Interior.ColorIndex = f.Item3;
+                    }
+
+                    foreach (var f in LiveMintData.HeaderColor2)
+                    {
+                        var sc = (Excel.Range)xlWorkSheet.Cells[2, f.Item1 + 1];
+                        var ec = (Excel.Range)xlWorkSheet.Cells[2, f.Item2 + f.Item1];
+                        var rang = xlWorkSheet.Range[sc, ec];
+                        rang.Interior.ColorIndex = f.Item3;
+                    }
                 }
 
                 xlWorkBook.SaveAs(_this.txtOut.Text, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                xlWorkBook.Close();
+                xlApp = null;
+                Log("[Success] : Saved excel");
             }
             
             _this.cbLivemint.Enabled = true;

@@ -44,7 +44,7 @@ namespace DataScraper
             if(_bLiveMint)
             {
                 LiveMintData lvd = new LiveMintData();
-                var _lvd = lvd.Execute(_selection);
+                _lvd = lvd.Execute(_selection);
             }
         }
     }

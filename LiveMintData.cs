@@ -48,12 +48,19 @@ namespace DataScraper
             public string[] noOfShares = new string[4];
         }
 
+        public static List<Tuple<int, int, int>> HeaderColor1 = new List<Tuple<int, int, int>>();
+        public static List<Tuple<int, int, int>> HeaderColor2 = new List<Tuple<int, int, int>>();
+        public static List<Tuple<int, int, int>> FormatColor = new List<Tuple<int, int, int>>();
+
+        private int _numCol = 0;
         private object[,] _data = null;
         private List<StatData> _statList = new List<StatData>();
 
         public object[,] Execute(string selection)
         {
-            FetchWebData(selection);
+            //FetchWebData(selection);
+            ArrangeData();
+            SetFormat(_numCol);
             return _data;
         }
 
@@ -65,11 +72,12 @@ namespace DataScraper
                 string strPgCount = GetResponse("http://markets.livemint.com/ajaxPages/equity/EquityCompanyList.aspx?srchquote=" + c.ToString() + "&pageNo=1&PageSize=20&opt=page");
                 int pageCount = Int32.Parse(strPgCount);
 
-                for(int i = 1; i <= pageCount; i++)
+                for(int i = 1; i <= 1; i++)
                 {
                     string strJson = GetResponse("http://markets.livemint.com/ajaxPages/equity/EquityCompanyList.aspx?srchquote=" + c.ToString() + "&pageNo="+ i.ToString() +"&PageSize=20");
                     var result = JsonConvert.DeserializeObject<List<jsonData>>(strJson);
-                    foreach(var r in result)
+                    //foreach(var r in result)
+                    var r = result[0];
                     {
                         StatData d = new StatData();
                         d.companyName = r.S_NAME;
@@ -98,7 +106,7 @@ namespace DataScraper
         }
 
 
-        private void ReadStockPrice(string finCode, ref StatData d)
+        private static void ReadStockPrice(string finCode, ref StatData d)
         {
             string url = "http://markets.livemint.com/company-profile/" + finCode + "-stock-updates.aspx";
             string res = GetResponse(url);
@@ -122,7 +130,7 @@ namespace DataScraper
             }
         }
 
-        private void ReadBalanceSheet(string finCode, ref StatData d)
+        private static void ReadBalanceSheet(string finCode, ref StatData d)
         {
             string url = "http://markets.livemint.com/company-profile/" + finCode + "-balance-sheet.aspx";
 
@@ -183,7 +191,7 @@ namespace DataScraper
             }
         }
 
-        private void ReadProfitLoss(string finCode, ref StatData d)
+        private static void ReadProfitLoss(string finCode, ref StatData d)
         {
             string url = "http://markets.livemint.com/company-profile/" + finCode + "-profit-loss-account.aspx";
 
@@ -244,7 +252,7 @@ namespace DataScraper
             }
         }
 
-        private void ReadCashFlowData(string finCode, ref StatData d)
+        private static void ReadCashFlowData(string finCode, ref StatData d)
         {
             string url = "http://markets.livemint.com/company-profile/" + finCode + "-cash-flow.aspx";
 
@@ -305,7 +313,7 @@ namespace DataScraper
             }
         }
 
-        private void ReadQuaterlyData(string finCode, ref StatData d)
+        private static void ReadQuaterlyData(string finCode, ref StatData d)
         {
             string url = "http://markets.livemint.com/company-profile/" + finCode + "-quarterly-results.aspx";
 
@@ -367,7 +375,7 @@ namespace DataScraper
             }
         }
 
-        private void ReadNoOfShares(string finCode, ref StatData d)
+        private static void ReadNoOfShares(string finCode, ref StatData d)
         {
             string url = "http://markets.livemint.com/company-profile/" + finCode + "-shareholding.aspx";
 
@@ -423,7 +431,7 @@ namespace DataScraper
             }
         }
 
-        private string GetResponse(string url)
+        private static string GetResponse(string url)
         {
             try
             {
@@ -446,7 +454,7 @@ namespace DataScraper
             }
         }
 
-        private string GetPostResponse(string url, string postData)
+        private static string GetPostResponse(string url, string postData)
         {
             try
             {
@@ -592,9 +600,248 @@ namespace DataScraper
             }
         } 
 
+        private static int GetYearVal(string quater)
+        {
+            try
+            {
+                int pos = quater.IndexOf('2');
+                string mon = quater.Substring(0, pos);
+
+                int yearVal = 4 * int.Parse(quater.Substring(pos + 1));
+                switch (mon.ToLower())
+                {
+                    case "jun":
+                        yearVal += 1;
+                        break;
+                    case "sept":
+                        yearVal += 2;
+                        break;
+                    case "dec":
+                        yearVal += 3;
+                        break;
+                }
+                return yearVal;
+            }
+            catch
+            { }
+
+            return 0;
+        }
+
+        private static string GetQuaterFromVal(int i)
+        {
+            string quater = "";
+            switch(i%4)
+            {
+                case 0:
+                    quater = "Mar ";
+                    break;
+                case 1:
+                    quater = "Jun ";
+                    break;
+                case 2:
+                    quater = "Sept ";
+                    break;
+                case 3:
+                    quater = "Dec ";
+                    break;
+            }
+
+            quater += (i / 4).ToString();
+            return quater;
+        }
+
         private void ArrangeData()
         {
+            _numCol = 5 + StaticData.liveMintStockData.Count() + 2 + 2 * StaticData.liveMintBalanceSheetHeader.Count() +
+                2 + 2 * StaticData.liveMintCashFlowData.Count() + 2 + 2 * StaticData.liveMintProfitLossData.Count() + 2
+                + 16 + 16 * StaticData.liveMintQuaterlyData.Count() + 20;
 
+            _data = new object[_statList.Count() + 2, _numCol];
+
+            _data[1, 0] = "Company Name";
+            _data[1, 1] = "BSE CODE";
+            _data[1, 2] = "NSE CODE";
+            _data[1, 3] = "BSE Price";
+            _data[1, 4] = "NSE Price";
+
+            int i = 5;
+            foreach (string header in StaticData.liveMintStockData)
+            {
+                _data[1, i] = header;
+                i++;
+            }
+
+            for (int j = 0; j < 2; j++)
+            {
+                _data[1, i] = "Year";
+                i++;
+
+                foreach (string header in StaticData.liveMintBalanceSheetHeader)
+                {
+                    _data[1, i] = header;
+                    i++;
+                }
+            }
+
+            for (int j = 0; j < 2; j++)
+            {
+                _data[1, i] = "Year";
+                i++;
+
+                foreach (string header in StaticData.liveMintProfitLossData)
+                {
+                    _data[1, i] = header;
+                    i++;
+                }
+            }
+
+            for (int j = 0; j < 2; j++)
+            {
+                _data[1, i] = "Year";
+                i++;
+
+                foreach (string header in StaticData.liveMintCashFlowData)
+                {
+                    _data[1, i] = header;
+                    i++;
+                }
+            }
+
+            for (int j = 0; j < 16; j++)
+            {
+                _data[1, i] = "Year";
+                i++;
+
+                foreach (string header in StaticData.liveMintQuaterlyData)
+                {
+                    _data[1, i] = header;
+                    i++;
+                }
+            }
+
+            _data[1, i] = "Year";
+            _data[1, i + 1] = "No of shares";
+
+            int k = 2;
+
+            foreach(var d in _statList)
+            {
+                _data[k, 0] = d.companyName;
+                _data[k, 1] = d.bseCode;
+                _data[k, 2] = d.nseCode;
+                _data[k, 3] = d.bsePrice;
+                _data[k, 4] = d.nsePrice;
+
+                i = 5;
+                foreach (string d2 in d.stockData)
+                {
+                    _data[k, i] = d2;
+                    i++;
+                }
+
+                _data[k, i] = d.balanceYearC;
+                i++;
+
+                foreach(string d2 in d.balanceSheetC)
+                {
+                    _data[k, i] = d2;
+                    i++;
+                }
+
+                _data[k, i] = d.balanceYearS;
+                i++;
+
+                foreach (string d2 in d.balanceSheetS)
+                {
+                    _data[k, i] = d2;
+                    i++;
+                }
+
+                _data[k, i] = d.profitLossYearC;
+                i++;
+
+                foreach (string d2 in d.profitLossC)
+                {
+                    _data[k, i] = d2;
+                    i++;
+                }
+
+                _data[k, i] = d.profitLossYearS;
+                i++;
+
+                foreach (string d2 in d.profitLossS)
+                {
+                    _data[k, i] = d2;
+                    i++;
+                }
+
+                _data[k, i] = d.cashFlowYearC;
+                i++;
+
+                foreach (string d2 in d.cashFlowDataC)
+                {
+                    _data[k, i] = d2;
+                    i++;
+                }
+
+                _data[k, i] = d.cashFlowYearS;
+                i++;
+
+                foreach (string d2 in d.cashFlowDataS)
+                {
+                    _data[k, i] = d2;
+                    i++;
+                }
+
+                int year = GetYearVal(d.quaterC);
+
+                foreach(var d2 in d.quaterlyDataC)
+                {
+                    _data[k, i] = GetQuaterFromVal(year);
+                    i++;
+                    year--;
+
+                    foreach(string d3 in d2)
+                    {
+                        _data[k, i] = d3;
+                        i++;
+                    }
+                }
+
+                year = GetYearVal(d.quaterS);
+
+                foreach (var d2 in d.quaterlyDataS)
+                {
+                    _data[k, i] = GetQuaterFromVal(year);
+                    i++;
+                    year--;
+
+                    foreach (string d3 in d2)
+                    {
+                        _data[k, i] = d3;
+                        i++;
+                    }
+                }
+
+                _data[k, i] = d.shareYear;
+                _data[k, i + 1] = d.noOfShares;
+
+                k++;
+            }
+
+        }
+
+        private static void SetFormat(int col)
+        {
+            HeaderColor1.Add(new Tuple<int, int, int>(0, col, 1));
+
+            HeaderColor2.Add(new Tuple<int, int, int>(0, 1, 8));
+            HeaderColor2.Add(new Tuple<int, int, int>(1, 2, 2));
+            HeaderColor2.Add(new Tuple<int, int, int>(3, 2, 35));
+            HeaderColor2.Add(new Tuple<int, int, int>(5, 12, 36));
+            HeaderColor2.Add(new Tuple<int, int, int>(17, 1, 15));
+            HeaderColor2.Add(new Tuple<int, int, int>(18, 128, 24));
         }
     }
 }
