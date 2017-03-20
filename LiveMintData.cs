@@ -58,7 +58,7 @@ namespace DataScraper
 
         public object[,] Execute(string selection)
         {
-            //FetchWebData(selection);
+            FetchWebData(selection);
             ArrangeData();
             SetFormat(_numCol);
             return _data;
@@ -76,8 +76,7 @@ namespace DataScraper
                 {
                     string strJson = GetResponse("http://markets.livemint.com/ajaxPages/equity/EquityCompanyList.aspx?srchquote=" + c.ToString() + "&pageNo="+ i.ToString() +"&PageSize=20");
                     var result = JsonConvert.DeserializeObject<List<jsonData>>(strJson);
-                    //foreach(var r in result)
-                    var r = result[0];
+                    foreach(var r in result)
                     {
                         StatData d = new StatData();
                         d.companyName = r.S_NAME;
@@ -607,7 +606,7 @@ namespace DataScraper
                 int pos = quater.IndexOf('2');
                 string mon = quater.Substring(0, pos);
 
-                int yearVal = 4 * int.Parse(quater.Substring(pos + 1));
+                int yearVal = 4 * int.Parse(quater.Substring(pos));
                 switch (mon.ToLower())
                 {
                     case "jun":
@@ -654,10 +653,12 @@ namespace DataScraper
         private void ArrangeData()
         {
             _numCol = 5 + StaticData.liveMintStockData.Count() + 2 + 2 * StaticData.liveMintBalanceSheetHeader.Count() +
-                2 + 2 * StaticData.liveMintCashFlowData.Count() + 2 + 2 * StaticData.liveMintProfitLossData.Count() + 2
-                + 16 + 16 * StaticData.liveMintQuaterlyData.Count() + 20;
+                2 + 2 * StaticData.liveMintCashFlowData.Count() + 2 + 2 * StaticData.liveMintProfitLossData.Count()
+                + 16 + 16 * StaticData.liveMintQuaterlyData.Count() + 2;
 
             _data = new object[_statList.Count() + 2, _numCol];
+
+            _data[0, 0] = "General Info";
 
             _data[1, 0] = "Company Name";
             _data[1, 1] = "BSE CODE";
@@ -666,6 +667,7 @@ namespace DataScraper
             _data[1, 4] = "NSE Price";
 
             int i = 5;
+            _data[0, i] = "Stock Data";
             foreach (string header in StaticData.liveMintStockData)
             {
                 _data[1, i] = header;
@@ -674,6 +676,15 @@ namespace DataScraper
 
             for (int j = 0; j < 2; j++)
             {
+                if (0 == j)
+                {
+                    _data[0, i] = "Balance Sheet (Consolidated)";
+                }
+                else
+                {
+                    _data[0, i] = "Balance Sheet (Standalone)";
+                }
+
                 _data[1, i] = "Year";
                 i++;
 
@@ -686,6 +697,14 @@ namespace DataScraper
 
             for (int j = 0; j < 2; j++)
             {
+                if (0 == j)
+                {
+                    _data[0, i] = "Profit / Loss (Consolidated)";
+                }
+                else
+                {
+                    _data[0, i] = "Profit / Loss (Standalone)";
+                }
                 _data[1, i] = "Year";
                 i++;
 
@@ -698,6 +717,15 @@ namespace DataScraper
 
             for (int j = 0; j < 2; j++)
             {
+                if (0 == j)
+                {
+                    _data[0, i] = "Cash Flow (Consolidated)";
+                }
+                else
+                {
+                    _data[0, i] = "Cash Flow (Standalone)";
+                }
+
                 _data[1, i] = "Year";
                 i++;
 
@@ -710,6 +738,15 @@ namespace DataScraper
 
             for (int j = 0; j < 16; j++)
             {
+                if (0 == j)
+                {
+                    _data[0, i] = "Quaterly (Consolidated)";
+                }
+                else if(8 == j)
+                {
+                    _data[0, i] = "Quaterly (Standalone)";
+                }
+
                 _data[1, i] = "Year";
                 i++;
 
@@ -796,30 +833,28 @@ namespace DataScraper
 
                 int year = GetYearVal(d.quaterC);
 
-                foreach(var d2 in d.quaterlyDataC)
+                for(int l = 0; l < 8; l++)
                 {
                     _data[k, i] = GetQuaterFromVal(year);
                     i++;
                     year--;
-
-                    foreach(string d3 in d2)
+                    foreach (var d2 in d.quaterlyDataC)
                     {
-                        _data[k, i] = d3;
+                        _data[k, i] = d2[l];
                         i++;
                     }
                 }
 
                 year = GetYearVal(d.quaterS);
 
-                foreach (var d2 in d.quaterlyDataS)
+                for (int l = 0; l < 8; l++)
                 {
                     _data[k, i] = GetQuaterFromVal(year);
                     i++;
                     year--;
-
-                    foreach (string d3 in d2)
+                    foreach (var d2 in d.quaterlyDataS)
                     {
-                        _data[k, i] = d3;
+                        _data[k, i] = d2[l];
                         i++;
                     }
                 }
@@ -834,14 +869,77 @@ namespace DataScraper
 
         private static void SetFormat(int col)
         {
-            HeaderColor1.Add(new Tuple<int, int, int>(0, col, 1));
+            int s, n;
+
+            HeaderColor1.Add(new Tuple<int, int, int>(0, 5, 33));
 
             HeaderColor2.Add(new Tuple<int, int, int>(0, 1, 8));
+            FormatColor.Add(new Tuple<int, int, int>(0, 1, 34));
             HeaderColor2.Add(new Tuple<int, int, int>(1, 2, 2));
-            HeaderColor2.Add(new Tuple<int, int, int>(3, 2, 35));
-            HeaderColor2.Add(new Tuple<int, int, int>(5, 12, 36));
-            HeaderColor2.Add(new Tuple<int, int, int>(17, 1, 15));
-            HeaderColor2.Add(new Tuple<int, int, int>(18, 128, 24));
+            FormatColor.Add(new Tuple<int, int, int>(1, 2, 2));
+            HeaderColor2.Add(new Tuple<int, int, int>(3, 2, 42));
+            FormatColor.Add(new Tuple<int, int, int>(3, 2, 35));
+
+            s = 5;
+            n = StaticData.liveMintStockData.Count();
+            HeaderColor1.Add(new Tuple<int, int, int>(s, n, 44));
+            HeaderColor2.Add(new Tuple<int, int, int>(s, n, 6));
+            FormatColor.Add(new Tuple<int, int, int>(s, n, 36));
+            s += n;
+
+            n = StaticData.liveMintBalanceSheetHeader.Count();
+            HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 17));
+            for (int i = 0; i < 2; i++)
+            {
+                HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+                FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+                HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 24));
+                FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 34));
+                s += n;
+                s++;
+            }
+
+            n = StaticData.liveMintProfitLossData.Count();
+            HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 10));
+            for (int i = 0; i < 2; i++)
+            {
+                HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+                FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+                HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 4));
+                FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 35));
+                s += n;
+                s++;
+            }
+
+            n = StaticData.liveMintCashFlowData.Count();
+            HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 23));
+            for (int i = 0; i < 2; i++)
+            {
+                HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+                FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+                HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 28));
+                FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 20));
+                s += n;
+                s++;
+            }
+
+            n = StaticData.liveMintQuaterlyData.Count();
+            HeaderColor1.Add(new Tuple<int, int, int>(s, 16 + 16 * n, 26));
+            for (int i = 0; i < 16; i++)
+            {
+                HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+                FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+                HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 7));
+                FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 38));
+                s += n;
+                s++;
+            }
+
+            HeaderColor1.Add(new Tuple<int, int, int>(s, 2, 6));
+            HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+            FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+            HeaderColor2.Add(new Tuple<int, int, int>(s+1, 1, 27));
+            FormatColor.Add(new Tuple<int, int, int>(s+1, 1, 19));
         }
     }
 }

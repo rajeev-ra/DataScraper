@@ -37,7 +37,7 @@ namespace DataScraper
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             SaveFileDialog sdlg = new SaveFileDialog();
-            sdlg.Filter = "Excel Files (*.xls)|*.xls";
+            sdlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
             if (DialogResult.OK == sdlg.ShowDialog())
             {
                 txtOut.Text = sdlg.FileName;
@@ -121,6 +121,7 @@ namespace DataScraper
                     var writeRange = xlWorkSheet.Range[startCell, endCell];
                     writeRange.Value2 = l;
                     writeRange.Columns.AutoFit();
+                    writeRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
 
                     foreach(var f in LiveMintData.HeaderColor1)
                     {
@@ -137,9 +138,17 @@ namespace DataScraper
                         var rang = xlWorkSheet.Range[sc, ec];
                         rang.Interior.ColorIndex = f.Item3;
                     }
+
+                    foreach (var f in LiveMintData.FormatColor)
+                    {
+                        var sc = (Excel.Range)xlWorkSheet.Cells[3, f.Item1 + 1];
+                        var ec = (Excel.Range)xlWorkSheet.Cells[l.GetLength(0), f.Item2 + f.Item1];
+                        var rang = xlWorkSheet.Range[sc, ec];
+                        rang.Interior.ColorIndex = f.Item3;
+                    }
                 }
 
-                xlWorkBook.SaveAs(_this.txtOut.Text, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                xlWorkBook.SaveAs(_this.txtOut.Text, Excel.XlFileFormat.xlOpenXMLWorkbook, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
                 xlWorkBook.Close();
                 xlApp = null;
                 Log("[Success] : Saved excel");
