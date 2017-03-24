@@ -42,7 +42,17 @@
             this.lblCat = new System.Windows.Forms.Label();
             this.lblAll = new System.Windows.Forms.Label();
             this.lblNone = new System.Windows.Forms.Label();
+            this.tc = new System.Windows.Forms.TabControl();
+            this.Home = new System.Windows.Forms.TabPage();
+            this.liveMint = new System.Windows.Forms.TabPage();
+            this.tbLiveMintSettings = new System.Windows.Forms.TabControl();
+            this.stockData = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.gb.SuspendLayout();
+            this.tc.SuspendLayout();
+            this.Home.SuspendLayout();
+            this.liveMint.SuspendLayout();
+            this.tbLiveMintSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // cbLivemint
@@ -78,7 +88,7 @@
             // lblSava
             // 
             this.lblSava.AutoSize = true;
-            this.lblSava.Location = new System.Drawing.Point(10, 13);
+            this.lblSava.Location = new System.Drawing.Point(12, 12);
             this.lblSava.Name = "lblSava";
             this.lblSava.Size = new System.Drawing.Size(72, 13);
             this.lblSava.TabIndex = 6;
@@ -87,7 +97,7 @@
             // txtOut
             // 
             this.txtOut.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtOut.Location = new System.Drawing.Point(12, 31);
+            this.txtOut.Location = new System.Drawing.Point(14, 30);
             this.txtOut.Name = "txtOut";
             this.txtOut.ReadOnly = true;
             this.txtOut.Size = new System.Drawing.Size(374, 20);
@@ -95,7 +105,7 @@
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(392, 29);
+            this.btnBrowse.Location = new System.Drawing.Point(417, 28);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnBrowse.TabIndex = 1;
@@ -105,7 +115,7 @@
             // 
             // btxExec
             // 
-            this.btxExec.Location = new System.Drawing.Point(372, 147);
+            this.btxExec.Location = new System.Drawing.Point(397, 146);
             this.btxExec.Name = "btxExec";
             this.btxExec.Size = new System.Drawing.Size(95, 37);
             this.btxExec.TabIndex = 5;
@@ -116,18 +126,18 @@
             // txtLog
             // 
             this.txtLog.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtLog.Location = new System.Drawing.Point(12, 218);
+            this.txtLog.Location = new System.Drawing.Point(14, 217);
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
             this.txtLog.ReadOnly = true;
             this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtLog.Size = new System.Drawing.Size(455, 86);
+            this.txtLog.Size = new System.Drawing.Size(478, 131);
             this.txtLog.TabIndex = 9;
             // 
             // lblMsg
             // 
             this.lblMsg.AutoSize = true;
-            this.lblMsg.Location = new System.Drawing.Point(10, 202);
+            this.lblMsg.Location = new System.Drawing.Point(12, 201);
             this.lblMsg.Name = "lblMsg";
             this.lblMsg.Size = new System.Drawing.Size(25, 13);
             this.lblMsg.TabIndex = 8;
@@ -138,9 +148,9 @@
             this.gb.Controls.Add(this.cbLivemint);
             this.gb.Controls.Add(this.cbFinExp);
             this.gb.Controls.Add(this.cbHBL);
-            this.gb.Location = new System.Drawing.Point(211, 60);
+            this.gb.Location = new System.Drawing.Point(223, 59);
             this.gb.Name = "gb";
-            this.gb.Size = new System.Drawing.Size(145, 124);
+            this.gb.Size = new System.Drawing.Size(165, 124);
             this.gb.TabIndex = 10;
             this.gb.TabStop = false;
             this.gb.Text = "DataSource";
@@ -148,7 +158,7 @@
             // cList
             // 
             this.cList.FormattingEnabled = true;
-            this.cList.Location = new System.Drawing.Point(13, 75);
+            this.cList.Location = new System.Drawing.Point(15, 74);
             this.cList.Name = "cList";
             this.cList.ScrollAlwaysVisible = true;
             this.cList.Size = new System.Drawing.Size(174, 109);
@@ -157,7 +167,7 @@
             // lblCat
             // 
             this.lblCat.AutoSize = true;
-            this.lblCat.Location = new System.Drawing.Point(10, 60);
+            this.lblCat.Location = new System.Drawing.Point(12, 59);
             this.lblCat.Name = "lblCat";
             this.lblCat.Size = new System.Drawing.Size(38, 13);
             this.lblCat.TabIndex = 12;
@@ -169,7 +179,7 @@
             this.lblAll.Cursor = System.Windows.Forms.Cursors.Hand;
             this.lblAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblAll.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.lblAll.Location = new System.Drawing.Point(133, 60);
+            this.lblAll.Location = new System.Drawing.Point(135, 59);
             this.lblAll.Name = "lblAll";
             this.lblAll.Size = new System.Drawing.Size(18, 13);
             this.lblAll.TabIndex = 13;
@@ -182,37 +192,103 @@
             this.lblNone.Cursor = System.Windows.Forms.Cursors.Hand;
             this.lblNone.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblNone.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.lblNone.Location = new System.Drawing.Point(157, 60);
+            this.lblNone.Location = new System.Drawing.Point(159, 59);
             this.lblNone.Name = "lblNone";
             this.lblNone.Size = new System.Drawing.Size(33, 13);
             this.lblNone.TabIndex = 14;
             this.lblNone.Text = "None";
             this.lblNone.Click += new System.EventHandler(this.lblNone_Click);
             // 
+            // tc
+            // 
+            this.tc.Controls.Add(this.Home);
+            this.tc.Controls.Add(this.liveMint);
+            this.tc.Location = new System.Drawing.Point(0, 0);
+            this.tc.Name = "tc";
+            this.tc.SelectedIndex = 0;
+            this.tc.Size = new System.Drawing.Size(516, 384);
+            this.tc.TabIndex = 15;
+            // 
+            // Home
+            // 
+            this.Home.Controls.Add(this.lblSava);
+            this.Home.Controls.Add(this.lblNone);
+            this.Home.Controls.Add(this.txtOut);
+            this.Home.Controls.Add(this.lblAll);
+            this.Home.Controls.Add(this.btnBrowse);
+            this.Home.Controls.Add(this.lblCat);
+            this.Home.Controls.Add(this.btxExec);
+            this.Home.Controls.Add(this.cList);
+            this.Home.Controls.Add(this.txtLog);
+            this.Home.Controls.Add(this.gb);
+            this.Home.Controls.Add(this.lblMsg);
+            this.Home.Location = new System.Drawing.Point(4, 22);
+            this.Home.Name = "Home";
+            this.Home.Padding = new System.Windows.Forms.Padding(3);
+            this.Home.Size = new System.Drawing.Size(508, 358);
+            this.Home.TabIndex = 0;
+            this.Home.Text = "Home";
+            this.Home.UseVisualStyleBackColor = true;
+            // 
+            // liveMint
+            // 
+            this.liveMint.Controls.Add(this.tbLiveMintSettings);
+            this.liveMint.Location = new System.Drawing.Point(4, 22);
+            this.liveMint.Name = "liveMint";
+            this.liveMint.Padding = new System.Windows.Forms.Padding(3);
+            this.liveMint.Size = new System.Drawing.Size(508, 358);
+            this.liveMint.TabIndex = 1;
+            this.liveMint.Text = "LiveMint settings";
+            this.liveMint.UseVisualStyleBackColor = true;
+            // 
+            // tbLiveMintSettings
+            // 
+            this.tbLiveMintSettings.Controls.Add(this.stockData);
+            this.tbLiveMintSettings.Controls.Add(this.tabPage2);
+            this.tbLiveMintSettings.Location = new System.Drawing.Point(9, 7);
+            this.tbLiveMintSettings.Name = "tbLiveMintSettings";
+            this.tbLiveMintSettings.SelectedIndex = 0;
+            this.tbLiveMintSettings.Size = new System.Drawing.Size(489, 341);
+            this.tbLiveMintSettings.TabIndex = 0;
+            // 
+            // stockData
+            // 
+            this.stockData.Location = new System.Drawing.Point(4, 22);
+            this.stockData.Name = "stockData";
+            this.stockData.Padding = new System.Windows.Forms.Padding(3);
+            this.stockData.Size = new System.Drawing.Size(481, 315);
+            this.stockData.TabIndex = 0;
+            this.stockData.Text = "Stock Data";
+            this.stockData.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(192, 74);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(479, 316);
-            this.Controls.Add(this.lblNone);
-            this.Controls.Add(this.lblAll);
-            this.Controls.Add(this.lblCat);
-            this.Controls.Add(this.cList);
-            this.Controls.Add(this.gb);
-            this.Controls.Add(this.lblMsg);
-            this.Controls.Add(this.txtLog);
-            this.Controls.Add(this.btxExec);
-            this.Controls.Add(this.btnBrowse);
-            this.Controls.Add(this.txtOut);
-            this.Controls.Add(this.lblSava);
+            this.ClientSize = new System.Drawing.Size(514, 382);
+            this.Controls.Add(this.tc);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.Text = "Scraper";
             this.gb.ResumeLayout(false);
             this.gb.PerformLayout();
+            this.tc.ResumeLayout(false);
+            this.Home.ResumeLayout(false);
+            this.Home.PerformLayout();
+            this.liveMint.ResumeLayout(false);
+            this.tbLiveMintSettings.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -232,6 +308,12 @@
         private System.Windows.Forms.Label lblCat;
         private System.Windows.Forms.Label lblAll;
         private System.Windows.Forms.Label lblNone;
+        private System.Windows.Forms.TabControl tc;
+        private System.Windows.Forms.TabPage Home;
+        private System.Windows.Forms.TabPage liveMint;
+        private System.Windows.Forms.TabControl tbLiveMintSettings;
+        private System.Windows.Forms.TabPage stockData;
+        private System.Windows.Forms.TabPage tabPage2;
     }
 }
 

@@ -404,24 +404,28 @@ namespace DataScraper
                 res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,ContentPlaceHolder1_InnerTable,tbody,Grand Total,</td>");
                 if (0 < res.Length)
                 {
-                    int pos = res.IndexOf("</tr>");
-                    if(0 < pos)
+                    try
                     {
-                        res = res.Substring(0, pos);
-
-                        for (int i = 0; i < 4; i++)
+                        int pos = res.IndexOf("</tr>");
+                        if (0 < pos)
                         {
-                            pos = res.IndexOf('>');
-                            res = res.Substring(pos + 1);
+                            res = res.Substring(0, pos);
 
-                            pos = res.IndexOf('>');
-                            res = res.Substring(pos + 1);
+                            for (int i = 0; i < 4; i++)
+                            {
+                                pos = res.IndexOf('>');
+                                res = res.Substring(pos + 1);
 
-                            pos = res.IndexOf('<');
-                            d.noOfShares[i] = res.Substring(0, pos);
+                                pos = res.IndexOf('>');
+                                res = res.Substring(pos + 1);
+
+                                pos = res.IndexOf('<');
+                                d.noOfShares[i] = res.Substring(0, pos);
+                            }
+
                         }
-
                     }
+                    catch { }
                 }
             }
             else
@@ -860,7 +864,7 @@ namespace DataScraper
                 }
 
                 _data[k, i] = d.shareYear;
-                _data[k, i + 1] = d.noOfShares;
+                _data[k, i + 1] = d.noOfShares[0];
 
                 k++;
             }
