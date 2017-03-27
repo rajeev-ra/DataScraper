@@ -8,9 +8,11 @@ namespace DataScraper
 {
     class StaticData
     {
+        public static string[] selectedLiveMintStockData = null;
         public static string[] liveMintStockData = new string[] { "MARKET CAP (RS MN)", "P/E", "BOOK VALUE(RS)", "DIV (%)", "MARKET LOT",
             "INDUSTRY P/E", "EPS (TTM)", "P/C", "PRICE BOOK", "DIV YIELD (%)", "FACE VALUE", "DELIVERABLES (%)" };
 
+        public static string[] selectedLiveMintBalanceSheet = null;
         public static string[] liveMintBalanceSheetHeader = new string[] { "Share Capital", "Equity - Authorised", "Equity - Issued",
             "Equity Paid Up", "Equity Shares Forfeited", "Adjustments to Equity", "Preference Capital Paid Up", "Face Value",
             "Share Warrants & Outstandings", "Total Reserves", "Securities Premium", "Capital Reserves",
@@ -44,6 +46,7 @@ namespace DataScraper
             "Net Current Assets (Including Current Investments)", "Miscellaneous Expenses not written off", "Total Assets",
             "Contingent Liabilities", "Total Debt", "Book Value", "Adjusted Book Value" };
 
+        public static string[] selectedLiveMintProfitLoss = null;
         public static string[] liveMintProfitLossData = new string[] { "Gross Sales", "Sales", "Job Work/ Contract Receipts",
             "Processing Charges / Service Income", "Revenue from property development", "Other Operational Income",
             "Less: Excise Duty", "Net Sales", "EXPENDITURE :", "Increase/Decrease in Stock", "Raw Material Consumed",
@@ -68,6 +71,7 @@ namespace DataScraper
             "Appropriations", "General Reserves", "Proposed Equity Dividend", "Corporate dividend tax", "Other Appropriation",
             "Equity Dividend %", "Earnings Per Share", "Adjusted EPS" };
 
+        public static string[] selectedLiveMintCashFlow = null;
         public static string[] liveMintCashFlowData = new string[] { "Profit Before Tax", "Adjustment", "Changes In working Capital",
             "Cash Flow after changes in Working Capital", "Cash Flow from Operating Activities", "Cash Flow from Investing Activities",
             "Cash Flow from Financing Activities", "Net Cash Inflow / Outflow", "Opening Cash & Cash Equivalents",
@@ -75,6 +79,7 @@ namespace DataScraper
             "Translation adjustment on reserves / op cash balalces frgn subsidiaries", "Effect of Foreign Exchange Fluctuations",
             "Closing Cash & Cash Equivalent" };
 
+        public static string[] selectedLiveMintQuaterly = null;
         public static string[] liveMintQuaterlyData = new string[] { "Audited / UnAudited", "Net Sales", "Total Expenditure",
             "PBIDT (Excl OI)", "Other Income", "Operating Profit", "Interest", "Exceptional Items", "PBDT", "Depreciation",
             "Profit Before Tax", "Tax", "Provisions and contingencies", "Profit After Tax", "Extraordinary Items",

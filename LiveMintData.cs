@@ -114,12 +114,15 @@ namespace DataScraper
                 d.bsePrice = GetData(res, "body,form,moneyWrapper,TopHead,listingBorder,leftlisting,wid3Col,fs20");
                 d.nsePrice = GetData(res, "body,form,moneyWrapper,TopHead,listingBorder,rightlisting,wid3Col,fs20");
 
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES");
-                if (0 < res.Length)
+                if (null != StaticData.selectedLiveMintStockData)
                 {
-                    foreach (string header in StaticData.liveMintStockData)
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,CONSOLIDATED FIGURES");
+                    if (0 < res.Length)
                     {
-                        d.stockData.Add(GetData(ref res, header, "fr"));
+                        foreach (string header in StaticData.selectedLiveMintStockData)
+                        {
+                            d.stockData.Add(GetData(ref res, header, "fr"));
+                        }
                     }
                 }
             }
@@ -131,246 +134,258 @@ namespace DataScraper
 
         private static void ReadBalanceSheet(string finCode, ref StatData d)
         {
-            string url = "http://markets.livemint.com/company-profile/" + finCode + "-balance-sheet.aspx";
-
-            string postData = "";
-            
-            // load default page
-            string res = GetResponse(url);
-            if (0 < res.Length)
+            if (null != StaticData.selectedLiveMintBalanceSheet)
             {
-                postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
-                postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
-                postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
-                postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
-                postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
-            }
+                string url = "http://markets.livemint.com/company-profile/" + finCode + "-balance-sheet.aspx";
 
+                string postData = "";
 
-            // change unit to crore
-            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$ddlconvertdata" + postData);
-            if (0 < res.Length)
-            {
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                // load default page
+                string res = GetResponse(url);
                 if (0 < res.Length)
                 {
-                    d.balanceYearC = GetData(res, "Particulars,class,<b>");
-                    foreach (string header in StaticData.liveMintBalanceSheetHeader)
-                    {
-                        d.balanceSheetC.Add(GetData(ref res, header, "fincomondata"));
-                    }
+                    postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
+                    postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
+                    postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
+                    postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
+                    postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
                 }
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
-            }
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
 
-            // change sheet to standalone
-            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
-            if (0 < res.Length)
-            {
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+
+                // change unit to crore
+                res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$ddlconvertdata" + postData);
                 if (0 < res.Length)
                 {
-                    d.balanceYearS = GetData(res, "Particulars,class,<b>");
-                    foreach (string header in StaticData.liveMintBalanceSheetHeader)
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                    if (0 < res.Length)
                     {
-                        d.balanceSheetS.Add(GetData(ref res, header, "fincomondata"));
+                        d.balanceYearC = GetData(res, "Particulars,class,<b>");
+                        foreach (string header in StaticData.selectedLiveMintBalanceSheet)
+                        {
+                            d.balanceSheetC.Add(GetData(ref res, header, "fincomondata"));
+                        }
                     }
                 }
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
+
+                // change sheet to standalone
+                res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
+                if (0 < res.Length)
+                {
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                    if (0 < res.Length)
+                    {
+                        d.balanceYearS = GetData(res, "Particulars,class,<b>");
+                        foreach (string header in StaticData.selectedLiveMintBalanceSheet)
+                        {
+                            d.balanceSheetS.Add(GetData(ref res, header, "fincomondata"));
+                        }
+                    }
+                }
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
             }
         }
 
         private static void ReadProfitLoss(string finCode, ref StatData d)
         {
-            string url = "http://markets.livemint.com/company-profile/" + finCode + "-profit-loss-account.aspx";
-
-            string postData = "";
-
-            // load default page
-            string res = GetResponse(url);
-            if (0 < res.Length)
+            if (null != StaticData.selectedLiveMintProfitLoss)
             {
-                postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
-                postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
-                postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
-                postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
-                postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
-            }
+                string url = "http://markets.livemint.com/company-profile/" + finCode + "-profit-loss-account.aspx";
 
+                string postData = "";
 
-            // change unit to crore
-            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$ddlconvertdata" + postData);
-            if (0 < res.Length)
-            {
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                // load default page
+                string res = GetResponse(url);
                 if (0 < res.Length)
                 {
-                    d.profitLossYearC = GetData(res, "Particulars,class");
-                    foreach (string header in StaticData.liveMintProfitLossData)
-                    {
-                        d.profitLossC.Add(GetData(ref res, header, "fincomondata"));
-                    }
+                    postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
+                    postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
+                    postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
+                    postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
+                    postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
                 }
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
-            }
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
 
-            // change sheet to standalone
-            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
-            if (0 < res.Length)
-            {
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+
+                // change unit to crore
+                res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$ddlconvertdata" + postData);
                 if (0 < res.Length)
                 {
-                    d.profitLossYearS = GetData(res, "Particulars,class");
-                    foreach (string header in StaticData.liveMintProfitLossData)
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                    if (0 < res.Length)
                     {
-                        d.profitLossS.Add(GetData(ref res, header, "fincomondata"));
+                        d.profitLossYearC = GetData(res, "Particulars,class");
+                        foreach (string header in StaticData.selectedLiveMintProfitLoss)
+                        {
+                            d.profitLossC.Add(GetData(ref res, header, "fincomondata"));
+                        }
                     }
                 }
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
+
+                // change sheet to standalone
+                res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
+                if (0 < res.Length)
+                {
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                    if (0 < res.Length)
+                    {
+                        d.profitLossYearS = GetData(res, "Particulars,class");
+                        foreach (string header in StaticData.selectedLiveMintProfitLoss)
+                        {
+                            d.profitLossS.Add(GetData(ref res, header, "fincomondata"));
+                        }
+                    }
+                }
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
             }
         }
 
         private static void ReadCashFlowData(string finCode, ref StatData d)
         {
-            string url = "http://markets.livemint.com/company-profile/" + finCode + "-cash-flow.aspx";
-
-            string postData = "";
-
-            // load default page
-            string res = GetResponse(url);
-            if (0 < res.Length)
+            if (null != StaticData.selectedLiveMintCashFlow)
             {
-                postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
-                postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
-                postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
-                postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
-                postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
-            }
+                string url = "http://markets.livemint.com/company-profile/" + finCode + "-cash-flow.aspx";
 
+                string postData = "";
 
-            // change unit to crore
-            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$ddlconvertdata" + postData);
-            if (0 < res.Length)
-            {
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                // load default page
+                string res = GetResponse(url);
                 if (0 < res.Length)
                 {
-                    d.cashFlowYearC = GetData(res, "Particulars,class");
-                    foreach (string header in StaticData.liveMintCashFlowData)
-                    {
-                        d.cashFlowDataC.Add(GetData(ref res, header, "fincomondata"));
-                    }
+                    postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
+                    postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
+                    postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
+                    postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
+                    postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
                 }
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
-            }
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
 
-            // change sheet to standalone
-            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
-            if (0 < res.Length)
-            {
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+
+                // change unit to crore
+                res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$ddlconvertdata" + postData);
                 if (0 < res.Length)
                 {
-                    d.cashFlowYearS = GetData(res, "Particulars,class");
-                    foreach (string header in StaticData.liveMintCashFlowData)
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                    if (0 < res.Length)
                     {
-                        d.cashFlowDataS.Add(GetData(ref res, header, "fincomondata"));
+                        d.cashFlowYearC = GetData(res, "Particulars,class");
+                        foreach (string header in StaticData.selectedLiveMintCashFlow)
+                        {
+                            d.cashFlowDataC.Add(GetData(ref res, header, "fincomondata"));
+                        }
                     }
                 }
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
+
+                // change sheet to standalone
+                res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
+                if (0 < res.Length)
+                {
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                    if (0 < res.Length)
+                    {
+                        d.cashFlowYearS = GetData(res, "Particulars,class");
+                        foreach (string header in StaticData.selectedLiveMintCashFlow)
+                        {
+                            d.cashFlowDataS.Add(GetData(ref res, header, "fincomondata"));
+                        }
+                    }
+                }
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
             }
         }
 
         private static void ReadQuaterlyData(string finCode, ref StatData d)
         {
-            string url = "http://markets.livemint.com/company-profile/" + finCode + "-quarterly-results.aspx";
-
-            string postData = "";
-
-            // load default page
-            string res = GetResponse(url);
-            if (0 < res.Length)
+            if (null != StaticData.selectedLiveMintQuaterly)
             {
-                postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
-                postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
-                postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
-                postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
-                postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
-                postData += "&ctl00$ContentPlaceHolder1$ddlYearDropDown=8";
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
-            }
+                string url = "http://markets.livemint.com/company-profile/" + finCode + "-quarterly-results.aspx";
 
+                string postData = "";
 
-            // change unit to crore
-            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$CompNews" + postData);
-            if (0 < res.Length)
-            {
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                // load default page
+                string res = GetResponse(url);
                 if (0 < res.Length)
                 {
-                    d.quaterC = GetData(res, "Particulars,class,<b>");
-                    foreach (string header in StaticData.liveMintQuaterlyData)
-                    {
-                        d.quaterlyDataC.Add(GetQuaterlyData(ref res, header));
-                    }
+                    postData += "&__VIEWSTATE=" + GetFormVal(res, "__VIEWSTATE");
+                    postData += "&__VIEWSTATEGENERATOR=" + GetFormVal(res, "__VIEWSTATEGENERATOR");
+                    postData += "&__EVENTARGUMENT=" + GetFormVal(res, "__EVENTARGUMENT");
+                    postData += "&__LASTFOCUS=" + GetFormVal(res, "__LASTFOCUS");
+                    postData += "&ctl00$ContentPlaceHolder1$ddlconvertdata=1";
+                    postData += "&ctl00$ContentPlaceHolder1$ddlYearDropDown=8";
                 }
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
-            }
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
 
-            // change sheet to standalone
-            res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
-            if (0 < res.Length)
-            {
-                res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+
+                // change unit to crore
+                res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$CompNews" + postData);
                 if (0 < res.Length)
                 {
-                    d.quaterS = GetData(res, "Particulars,class,<b>");
-                    foreach (string header in StaticData.liveMintQuaterlyData)
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                    if (0 < res.Length)
                     {
-                        d.quaterlyDataS.Add(GetQuaterlyData(ref res, header));
+                        d.quaterC = GetData(res, "Particulars,class,<b>");
+                        foreach (string header in StaticData.selectedLiveMintQuaterly)
+                        {
+                            d.quaterlyDataC.Add(GetQuaterlyData(ref res, header));
+                        }
                     }
                 }
-            }
-            else
-            {
-                MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
+
+                // change sheet to standalone
+                res = GetPostResponse(url, "__EVENTTARGET=ctl00$ContentPlaceHolder1$Standalone" + postData);
+                if (0 < res.Length)
+                {
+                    res = StaticData.TrimData(res, "body,form,moneyWrapper,rightCol2,tabcontentbgfff");
+                    if (0 < res.Length)
+                    {
+                        d.quaterS = GetData(res, "Particulars,class,<b>");
+                        foreach (string header in StaticData.selectedLiveMintQuaterly)
+                        {
+                            d.quaterlyDataS.Add(GetQuaterlyData(ref res, header));
+                        }
+                    }
+                }
+                else
+                {
+                    MainForm.Log("[ Error ] : Cannot fetch \"" + url + "\"");
+                }
             }
         }
 
@@ -633,33 +648,43 @@ namespace DataScraper
 
         private static string GetQuaterFromVal(int i)
         {
-            string quater = "";
-            switch(i%4)
+            if (i > 7000)
             {
-                case 0:
-                    quater = "Mar ";
-                    break;
-                case 1:
-                    quater = "Jun ";
-                    break;
-                case 2:
-                    quater = "Sept ";
-                    break;
-                case 3:
-                    quater = "Dec ";
-                    break;
-            }
+                string quater = "";
+                switch (i % 4)
+                {
+                    case 0:
+                        quater = "Mar ";
+                        break;
+                    case 1:
+                        quater = "Jun ";
+                        break;
+                    case 2:
+                        quater = "Sept ";
+                        break;
+                    case 3:
+                        quater = "Dec ";
+                        break;
+                }
 
-            quater += (i / 4).ToString();
-            return quater;
+                quater += (i / 4).ToString();
+                return quater;
+            }
+            else
+            {
+                return "";
+            }
         }
 
         private void ArrangeData()
         {
-            _numCol = 5 + StaticData.liveMintStockData.Count() + 2 + 2 * StaticData.liveMintBalanceSheetHeader.Count() +
-                2 + 2 * StaticData.liveMintCashFlowData.Count() + 2 + 2 * StaticData.liveMintProfitLossData.Count()
-                + 16 + 16 * StaticData.liveMintQuaterlyData.Count() + 2;
-
+            _numCol = 7;
+            _numCol += (null != StaticData.selectedLiveMintStockData) ? StaticData.selectedLiveMintStockData.Count() : 0;
+            _numCol += (null != StaticData.selectedLiveMintBalanceSheet) ? 2 + 2 * StaticData.selectedLiveMintBalanceSheet.Count() : 0;
+            _numCol += (null != StaticData.selectedLiveMintProfitLoss) ? 2 + 2 * StaticData.selectedLiveMintProfitLoss.Count() : 0;
+            _numCol += (null != StaticData.selectedLiveMintCashFlow) ? 2 + 2 * StaticData.selectedLiveMintCashFlow.Count() : 0;
+            _numCol += (null != StaticData.selectedLiveMintQuaterly) ? 16 + 16 * StaticData.selectedLiveMintQuaterly.Count() : 0;
+                        
             _data = new object[_statList.Count() + 2, _numCol];
 
             _data[0, 0] = "General Info";
@@ -671,93 +696,109 @@ namespace DataScraper
             _data[1, 4] = "NSE Price";
 
             int i = 5;
-            _data[0, i] = "Stock Data";
-            foreach (string header in StaticData.liveMintStockData)
+
+            if(null != StaticData.selectedLiveMintStockData)
             {
-                _data[1, i] = header;
-                i++;
-            }
-
-            for (int j = 0; j < 2; j++)
-            {
-                if (0 == j)
-                {
-                    _data[0, i] = "Balance Sheet (Consolidated)";
-                }
-                else
-                {
-                    _data[0, i] = "Balance Sheet (Standalone)";
-                }
-
-                _data[1, i] = "Year";
-                i++;
-
-                foreach (string header in StaticData.liveMintBalanceSheetHeader)
+                _data[0, i] = "Stock Data";
+                foreach (string header in StaticData.selectedLiveMintStockData)
                 {
                     _data[1, i] = header;
                     i++;
                 }
             }
 
-            for (int j = 0; j < 2; j++)
+            if (null != StaticData.selectedLiveMintBalanceSheet)
             {
-                if (0 == j)
+                for (int j = 0; j < 2; j++)
                 {
-                    _data[0, i] = "Profit / Loss (Consolidated)";
-                }
-                else
-                {
-                    _data[0, i] = "Profit / Loss (Standalone)";
-                }
-                _data[1, i] = "Year";
-                i++;
+                    if (0 == j)
+                    {
+                        _data[0, i] = "Balance Sheet (Consolidated)";
+                    }
+                    else
+                    {
+                        _data[0, i] = "Balance Sheet (Standalone)";
+                    }
 
-                foreach (string header in StaticData.liveMintProfitLossData)
-                {
-                    _data[1, i] = header;
+                    _data[1, i] = "Year";
                     i++;
+
+                    foreach (string header in StaticData.selectedLiveMintBalanceSheet)
+                    {
+                        _data[1, i] = header;
+                        i++;
+                    }
                 }
             }
 
-            for (int j = 0; j < 2; j++)
+            if (null != StaticData.selectedLiveMintProfitLoss)
             {
-                if (0 == j)
+                for (int j = 0; j < 2; j++)
                 {
-                    _data[0, i] = "Cash Flow (Consolidated)";
-                }
-                else
-                {
-                    _data[0, i] = "Cash Flow (Standalone)";
-                }
-
-                _data[1, i] = "Year";
-                i++;
-
-                foreach (string header in StaticData.liveMintCashFlowData)
-                {
-                    _data[1, i] = header;
+                    if (0 == j)
+                    {
+                        _data[0, i] = "Profit / Loss (Consolidated)";
+                    }
+                    else
+                    {
+                        _data[0, i] = "Profit / Loss (Standalone)";
+                    }
+                    _data[1, i] = "Year";
                     i++;
+
+                    foreach (string header in StaticData.selectedLiveMintProfitLoss)
+                    {
+                        _data[1, i] = header;
+                        i++;
+                    }
                 }
             }
 
-            for (int j = 0; j < 16; j++)
+            if (null != StaticData.selectedLiveMintCashFlow)
             {
-                if (0 == j)
+                for (int j = 0; j < 2; j++)
                 {
-                    _data[0, i] = "Quaterly (Consolidated)";
-                }
-                else if(8 == j)
-                {
-                    _data[0, i] = "Quaterly (Standalone)";
-                }
+                    if (0 == j)
+                    {
+                        _data[0, i] = "Cash Flow (Consolidated)";
+                    }
+                    else
+                    {
+                        _data[0, i] = "Cash Flow (Standalone)";
+                    }
 
-                _data[1, i] = "Year";
-                i++;
-
-                foreach (string header in StaticData.liveMintQuaterlyData)
-                {
-                    _data[1, i] = header;
+                    _data[1, i] = "Year";
                     i++;
+
+                    foreach (string header in StaticData.selectedLiveMintCashFlow)
+                    {
+                        _data[1, i] = header;
+                        i++;
+                    }
+                }
+            }
+
+            if (null != StaticData.selectedLiveMintQuaterly)
+            {
+                for (int j = 0; j < 16; j++)
+                {
+                    if (0 == j)
+                    {
+                        _data[0, i] = "Quaterly (Consolidated)";
+                    }
+                    else if (8 == j)
+                    {
+                        _data[0, i] = "Quaterly (Standalone)";
+                    }
+
+                    _data[1, i] = "Year";
+                    i++;
+
+                    foreach (string header in StaticData.selectedLiveMintQuaterly)
+                    {
+                        _data[1, i] = header;
+                        i++;
+                    }
                 }
             }
 
@@ -775,91 +816,107 @@ namespace DataScraper
                 _data[k, 4] = d.nsePrice;
 
                 i = 5;
-                foreach (string d2 in d.stockData)
+
+                if (null != StaticData.selectedLiveMintStockData)
                 {
-                    _data[k, i] = d2;
-                    i++;
-                }
-
-                _data[k, i] = d.balanceYearC;
-                i++;
-
-                foreach(string d2 in d.balanceSheetC)
-                {
-                    _data[k, i] = d2;
-                    i++;
-                }
-
-                _data[k, i] = d.balanceYearS;
-                i++;
-
-                foreach (string d2 in d.balanceSheetS)
-                {
-                    _data[k, i] = d2;
-                    i++;
-                }
-
-                _data[k, i] = d.profitLossYearC;
-                i++;
-
-                foreach (string d2 in d.profitLossC)
-                {
-                    _data[k, i] = d2;
-                    i++;
-                }
-
-                _data[k, i] = d.profitLossYearS;
-                i++;
-
-                foreach (string d2 in d.profitLossS)
-                {
-                    _data[k, i] = d2;
-                    i++;
-                }
-
-                _data[k, i] = d.cashFlowYearC;
-                i++;
-
-                foreach (string d2 in d.cashFlowDataC)
-                {
-                    _data[k, i] = d2;
-                    i++;
-                }
-
-                _data[k, i] = d.cashFlowYearS;
-                i++;
-
-                foreach (string d2 in d.cashFlowDataS)
-                {
-                    _data[k, i] = d2;
-                    i++;
-                }
-
-                int year = GetYearVal(d.quaterC);
-
-                for(int l = 0; l < 8; l++)
-                {
-                    _data[k, i] = GetQuaterFromVal(year);
-                    i++;
-                    year--;
-                    foreach (var d2 in d.quaterlyDataC)
+                    foreach (string d2 in d.stockData)
                     {
-                        _data[k, i] = d2[l];
+                        _data[k, i] = d2;
                         i++;
                     }
                 }
 
-                year = GetYearVal(d.quaterS);
-
-                for (int l = 0; l < 8; l++)
+                if (null != StaticData.selectedLiveMintBalanceSheet)
                 {
-                    _data[k, i] = GetQuaterFromVal(year);
+                    _data[k, i] = d.balanceYearC;
                     i++;
-                    year--;
-                    foreach (var d2 in d.quaterlyDataS)
+
+                    foreach (string d2 in d.balanceSheetC)
                     {
-                        _data[k, i] = d2[l];
+                        _data[k, i] = d2;
                         i++;
+                    }
+
+                    _data[k, i] = d.balanceYearS;
+                    i++;
+
+                    foreach (string d2 in d.balanceSheetS)
+                    {
+                        _data[k, i] = d2;
+                        i++;
+                    }
+                }
+
+                if (null != StaticData.selectedLiveMintProfitLoss)
+                {
+                    _data[k, i] = d.profitLossYearC;
+                    i++;
+
+                    foreach (string d2 in d.profitLossC)
+                    {
+                        _data[k, i] = d2;
+                        i++;
+                    }
+
+                    _data[k, i] = d.profitLossYearS;
+                    i++;
+
+                    foreach (string d2 in d.profitLossS)
+                    {
+                        _data[k, i] = d2;
+                        i++;
+                    }
+                }
+
+                if (null != StaticData.selectedLiveMintCashFlow)
+                {
+                    _data[k, i] = d.cashFlowYearC;
+                    i++;
+
+                    foreach (string d2 in d.cashFlowDataC)
+                    {
+                        _data[k, i] = d2;
+                        i++;
+                    }
+
+                    _data[k, i] = d.cashFlowYearS;
+                    i++;
+
+                    foreach (string d2 in d.cashFlowDataS)
+                    {
+                        _data[k, i] = d2;
+                        i++;
+                    }
+                }
+
+                if (null != StaticData.selectedLiveMintQuaterly)
+                {
+                    int year = GetYearVal(d.quaterC);
+
+                    for (int l = 0; l < 8; l++)
+                    {
+                        _data[k, i] = GetQuaterFromVal(year);
+                        i++;
+                        year--;
+                        foreach (var d2 in d.quaterlyDataC)
+                        {
+                            _data[k, i] = d2[l];
+                            i++;
+                        }
+                    }
+
+                    year = GetYearVal(d.quaterS);
+
+                    for (int l = 0; l < 8; l++)
+                    {
+                        _data[k, i] = GetQuaterFromVal(year);
+                        i++;
+                        year--;
+                        foreach (var d2 in d.quaterlyDataS)
+                        {
+                            _data[k, i] = d2[l];
+                            i++;
+                        }
                     }
                 }
 
@@ -885,58 +942,75 @@ namespace DataScraper
             FormatColor.Add(new Tuple<int, int, int>(3, 2, 35));
 
             s = 5;
-            n = StaticData.liveMintStockData.Count();
-            HeaderColor1.Add(new Tuple<int, int, int>(s, n, 44));
-            HeaderColor2.Add(new Tuple<int, int, int>(s, n, 6));
-            FormatColor.Add(new Tuple<int, int, int>(s, n, 36));
-            s += n;
 
-            n = StaticData.liveMintBalanceSheetHeader.Count();
-            HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 17));
-            for (int i = 0; i < 2; i++)
+            if(null != StaticData.selectedLiveMintStockData)
             {
-                HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
-                FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
-                HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 24));
-                FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 34));
+                n = StaticData.selectedLiveMintStockData.Count();
+                HeaderColor1.Add(new Tuple<int, int, int>(s, n, 44));
+                HeaderColor2.Add(new Tuple<int, int, int>(s, n, 6));
+                FormatColor.Add(new Tuple<int, int, int>(s, n, 36));
                 s += n;
-                s++;
             }
 
-            n = StaticData.liveMintProfitLossData.Count();
-            HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 10));
-            for (int i = 0; i < 2; i++)
+
+            if (null != StaticData.selectedLiveMintBalanceSheet)
             {
-                HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
-                FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
-                HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 4));
-                FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 35));
-                s += n;
-                s++;
+                n = StaticData.selectedLiveMintBalanceSheet.Count();
+                HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 17));
+                for (int i = 0; i < 2; i++)
+                {
+                    HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+                    FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+                    HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 24));
+                    FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 34));
+                    s += n;
+                    s++;
+                }
             }
 
-            n = StaticData.liveMintCashFlowData.Count();
-            HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 23));
-            for (int i = 0; i < 2; i++)
+            if (null != StaticData.selectedLiveMintProfitLoss)
             {
-                HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
-                FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
-                HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 28));
-                FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 20));
-                s += n;
-                s++;
+                n = StaticData.selectedLiveMintProfitLoss.Count();
+                HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 10));
+                for (int i = 0; i < 2; i++)
+                {
+                    HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+                    FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+                    HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 4));
+                    FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 35));
+                    s += n;
+                    s++;
+                }
             }
 
-            n = StaticData.liveMintQuaterlyData.Count();
-            HeaderColor1.Add(new Tuple<int, int, int>(s, 16 + 16 * n, 26));
-            for (int i = 0; i < 16; i++)
+            if (null != StaticData.selectedLiveMintCashFlow)
             {
-                HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
-                FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
-                HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 7));
-                FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 38));
-                s += n;
-                s++;
+                n = StaticData.selectedLiveMintCashFlow.Count();
+                HeaderColor1.Add(new Tuple<int, int, int>(s, 2 + 2 * n, 23));
+                for (int i = 0; i < 2; i++)
+                {
+                    HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+                    FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+                    HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 28));
+                    FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 20));
+                    s += n;
+                    s++;
+                }
+            }
+
+            if (null != StaticData.selectedLiveMintQuaterly)
+            {
+                n = StaticData.selectedLiveMintQuaterly.Count();
+                HeaderColor1.Add(new Tuple<int, int, int>(s, 16 + 16 * n, 26));
+                for (int i = 0; i < 16; i++)
+                {
+                    HeaderColor2.Add(new Tuple<int, int, int>(s, 1, 16));
+                    FormatColor.Add(new Tuple<int, int, int>(s, 1, 15));
+                    HeaderColor2.Add(new Tuple<int, int, int>(s + 1, n, 7));
+                    FormatColor.Add(new Tuple<int, int, int>(s + 1, n, 38));
+                    s += n;
+                    s++;
+                }
             }
 
             HeaderColor1.Add(new Tuple<int, int, int>(s, 2, 6));

@@ -29,6 +29,31 @@ namespace DataScraper
                 cList.Items.Add(c);
             }
 
+            foreach(string d in StaticData.liveMintStockData)
+            {
+                clbStockData.Items.Add(d, true);
+            }
+
+            foreach (string d in StaticData.liveMintBalanceSheetHeader)
+            {
+                clbLiveMintBalanceSheet.Items.Add(d, true);
+            }
+
+            foreach (string d in StaticData.liveMintProfitLossData)
+            {
+                clbLiveMintProfitLoss.Items.Add(d, true);
+            }
+
+            foreach (string d in StaticData.liveMintCashFlowData)
+            {
+                clbLiveMintCashFlow.Items.Add(d, true);
+            }
+
+            foreach (string d in StaticData.liveMintQuaterlyData)
+            {
+                clbLiveMintExportQuaterly.Items.Add(d, true);
+            }
+
             _this = this;
             _this.cbFinExp.Enabled = false;
             _this.cbHBL.Enabled = false;
@@ -58,6 +83,67 @@ namespace DataScraper
 
                     if (cbFinExp.Checked || cbLivemint.Checked || cbHBL.Checked)
                     {
+                        StaticData.selectedLiveMintStockData = null;
+                        StaticData.selectedLiveMintBalanceSheet = null;
+                        StaticData.selectedLiveMintProfitLoss = null;
+                        StaticData.selectedLiveMintCashFlow = null;
+                        StaticData.selectedLiveMintQuaterly = null;
+
+                        if(cbExportStockData.Checked && 0 < clbStockData.SelectedItems.Count)
+                        {
+                            StaticData.selectedLiveMintStockData = new string[clbStockData.SelectedItems.Count];
+                            int i = 0;
+                            foreach (var item in clbStockData.SelectedItems)
+                            {
+                                StaticData.selectedLiveMintStockData[i] = item.ToString();
+                                i++;
+                            }
+                        }
+
+                        if (cbExportBalanceSheet.Checked && 0 < clbLiveMintBalanceSheet.SelectedItems.Count)
+                        {
+                            StaticData.selectedLiveMintBalanceSheet = new string[clbLiveMintBalanceSheet.SelectedItems.Count];
+                            int i = 0;
+                            foreach (var item in clbLiveMintBalanceSheet.SelectedItems)
+                            {
+                                StaticData.selectedLiveMintBalanceSheet[i] = item.ToString();
+                                i++;
+                            }
+                        }
+
+                        if (cbLiveMintProfitLoss.Checked && 0 < clbLiveMintProfitLoss.SelectedItems.Count)
+                        {
+                            StaticData.selectedLiveMintProfitLoss = new string[clbLiveMintProfitLoss.SelectedItems.Count];
+                            int i = 0;
+                            foreach (var item in clbLiveMintProfitLoss.SelectedItems)
+                            {
+                                StaticData.selectedLiveMintProfitLoss[i] = item.ToString();
+                                i++;
+                            }
+                        }
+
+                        if (cbExportLiveMintCashFlow.Checked && 0 < clbLiveMintCashFlow.SelectedItems.Count)
+                        {
+                            StaticData.selectedLiveMintCashFlow = new string[clbLiveMintCashFlow.SelectedItems.Count];
+                            int i = 0;
+                            foreach (var item in clbLiveMintCashFlow.SelectedItems)
+                            {
+                                StaticData.selectedLiveMintCashFlow[i] = item.ToString();
+                                i++;
+                            }
+                        }
+
+                        if (cbLiveMintExportQuaterly.Checked && 0 < clbLiveMintExportQuaterly.SelectedItems.Count)
+                        {
+                            StaticData.selectedLiveMintQuaterly = new string[clbLiveMintExportQuaterly.SelectedItems.Count];
+                            int i = 0;
+                            foreach (var item in clbLiveMintExportQuaterly.SelectedItems)
+                            {
+                                StaticData.selectedLiveMintQuaterly[i] = item.ToString();
+                                i++;
+                            }
+                        }
+
                         Log("[Success] : Data fetching started");
                         cbLivemint.Enabled = false;
                         cbFinExp.Enabled = false;
@@ -189,6 +275,91 @@ namespace DataScraper
         {
             for (int i = 0; i < cList.Items.Count; i++)
                 cList.SetItemChecked(i, false);
+        }
+
+        private void cbExportStockData_CheckedChanged(object sender, EventArgs e)
+        {
+            clbStockData.Enabled = cbExportStockData.Checked;
+        }
+
+        private void lblStockDataAll_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbStockData.Items.Count; i++)
+                clbStockData.SetItemChecked(i, true);
+        }
+
+        private void lblStockDataNone_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbStockData.Items.Count; i++)
+                clbStockData.SetItemChecked(i, false);
+        }
+
+        private void cbExportBalanceSheet_CheckedChanged(object sender, EventArgs e)
+        {
+            clbLiveMintBalanceSheet.Enabled = cbExportBalanceSheet.Checked;
+        }
+
+        private void lblSelectBalanceSheetAll_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbLiveMintBalanceSheet.Items.Count; i++)
+                clbLiveMintBalanceSheet.SetItemChecked(i, true);
+        }
+
+        private void lblSelectBalanceSheetNone_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbLiveMintBalanceSheet.Items.Count; i++)
+                clbLiveMintBalanceSheet.SetItemChecked(i, false);
+        }
+
+        private void cbLiveMintProfitLoss_CheckedChanged(object sender, EventArgs e)
+        {
+            clbLiveMintProfitLoss.Enabled = cbLiveMintProfitLoss.Checked;
+        }
+
+        private void lblLiveMintProfitLossAll_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbLiveMintProfitLoss.Items.Count; i++)
+                clbLiveMintProfitLoss.SetItemChecked(i, true);
+        }
+
+        private void lblLiveMintProfitLossNone_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbLiveMintProfitLoss.Items.Count; i++)
+                clbLiveMintProfitLoss.SetItemChecked(i, false);
+        }
+
+        private void cbExportLiveMintCashFlow_CheckedChanged(object sender, EventArgs e)
+        {
+            clbLiveMintCashFlow.Enabled = cbExportLiveMintCashFlow.Checked;
+        }
+
+        private void lblLiveMintCashFlowAll_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbLiveMintCashFlow.Items.Count; i++)
+                clbLiveMintCashFlow.SetItemChecked(i, true);
+        }
+
+        private void lblLiveMintCashFlowNone_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbLiveMintCashFlow.Items.Count; i++)
+                clbLiveMintCashFlow.SetItemChecked(i, false);
+        }
+
+        private void cbLiveMintExportQuaterly_CheckedChanged(object sender, EventArgs e)
+        {
+            clbLiveMintExportQuaterly.Enabled = cbLiveMintExportQuaterly.Checked;
+        }
+
+        private void lblLiveMintExportQuaterlyAll_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbLiveMintExportQuaterly.Items.Count; i++)
+                clbLiveMintExportQuaterly.SetItemChecked(i, true);
+        }
+
+        private void lblLiveMintExportQuaterlyNone_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbLiveMintExportQuaterly.Items.Count; i++)
+                clbLiveMintExportQuaterly.SetItemChecked(i, false);
         }
     }
 }
